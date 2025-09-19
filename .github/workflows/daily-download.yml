@@ -1,0 +1,44 @@
+# A name for your workflow
+name: Daily NOAA Data Download
+
+# Controls when the action will run
+on:
+  schedule:
+    # This runs the job every day at 02:00 UTC (9 AM in Vietnam)
+    # You can change the time using cron syntax.
+    - cron: '30 14 19 9 *'
+  # This line also allows you to run it manually from the Actions tab
+  workflow_dispatch:
+
+# Defines the actual job that will be run
+jobs:
+  build:
+    # The type of virtual machine to use
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checks out your repository's code so the job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up the Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Step 3: Installs the 'requests' library
+      - name: Install dependencies
+        run: pip install requests
+
+      # Step 4: Runs your Python script
+      - name: Run the download script
+        run: python 1_taigio.py
+
+      # Step 5: IMPORTANT - Uploads the result
+      # This takes the generated file and saves it as a downloadable artifact.
+      - name: Upload wind data file
+        uses: actions/upload-artifact@v4
+        with:
+          name: wind-data-output
+          path: wind_data_2025.csv # The name of the file your script creates
